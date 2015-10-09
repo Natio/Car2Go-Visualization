@@ -1,0 +1,24 @@
+.circle_group{
+  /*stroke: #001;*/
+}
+
+.circle{
+  fill:#58355E;
+}
+
+.circle_group .circle:hover{
+  /*fill: #bcd4de;*/
+}
+
+.circle_group .line{
+  visibility:hidden;
+
+}
+
+.circle_group:hover .line{
+  visibility:visible;
+}
+
+.dot {
+  stroke: #000;
+}

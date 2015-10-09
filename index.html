@@ -1,0 +1,307 @@
+<html>
+<head>
+<style>
+html, body{
+  margin-left:0px;
+  background-color: #7ebc89;
+}
+
+
+div.div_container  {
+    box-shadow: 5px 10px 5px rgba(0,0,0,0.1);
+    border-bottom-right-radius:5px;
+    border-bottom-left-radius:5px;
+    width : 1240px;
+    height: 611px;
+    margin-left:auto;
+    margin-right:auto;
+    background-color: white;
+    z-index:-1
+}
+
+div.div_container div.div_item {
+    width: 640px;
+    height: 600px;
+    float: left;
+}
+
+div.div_container div.div_item div.div_item {
+    width: 600px;
+    height: 200px;
+    float: left;
+}
+
+
+#map_container{
+  width: 600px;
+  height: 611px;
+  margin-left: 0;
+  margin-right: auto;
+  background-image: url("rome_map.jpg");
+  background-size: 600px 611px;
+  background-repeat: no-repeat;
+  border-bottom-left-radius:5px;
+  clip:inherit;
+  float:left;
+  position:absolute;
+  top:58px;
+  left:16px;
+}
+
+#graphs_container{
+  position:absolute;
+  top:60px;
+  left:620px;
+}
+
+#slider_container{
+  border-top-left-radius:4px;
+  border-top-right-radius:4px;
+  width:1240px;
+  height:50px;
+  margin-left:auto;
+  margin-right:auto;
+  background-color: #Ff6D2f;
+}
+
+#slider_container div.left_div{
+  width:800px;
+  float:left;
+  height:50px;
+  /*background-color: red;*/
+}
+
+#slider_container div.left_div p{
+  float: right;
+  margin-right: 40px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: white;
+  font-weight:bold;
+}
+
+#datepicker{
+  border: 2px solid white;
+  background-color:#FFF0EA;
+  text-align:right;
+  font-weight:300px;
+}
+
+
+#slider_container div.title_div{
+  width:300px;
+  float:left;
+}
+
+#slider_container div.title_div p{
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight:200;
+  color:white;
+}
+
+#slider_container div.right_div{
+  width:0px;
+  height:50px;
+  float:left;
+  /*background-color: green;*/
+}
+#slider_container div.right_div p#date_paragraph{
+  /*background-color: yellow;*/
+  text-align: center;
+  font-size:16px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+div.legend{
+  margin-top:20px;
+  width:1240;
+  margin-left:auto;
+  margin-right:auto;
+}
+div.legend div.legend_item{
+  width:1220;
+  margin-left:20px;
+  height:30px;
+  border: 1px solid blue;
+}
+
+
+
+
+#loading_overlay{
+  background: rgba(0,0,0,0.85);
+  width:      100%;
+  height:     100%;
+  z-index:    10;
+  top:        0;
+  left:       0;
+  position:   fixed;
+}
+
+#loading_overlay p{
+  opacity: 1.0;
+  font-size:40px;
+  width:100%;
+  heigth:300px;
+  margin-top:300px;
+  font-weight: 500;
+  text-align: center;
+  vertical-align: middle;
+  color:#fff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+p.signature{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size:12px;
+  text-transform: uppercase;
+  text-align:right;
+  margin-right:20px;
+}
+
+
+</style>
+
+<link href="css/bar_chart.css" rel="stylesheet" type="text/css"/>
+<link href="css/map.css" rel="stylesheet" type="text/css"/>
+<link href="css/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="d3.min.js"></script>
+<script type="text/javascript" src="d3.tip.js"></script>
+<script type="text/javascript" src="jquery-2.1.3.min.js"></script>
+<script type="text/javascript" src="jquery-ui.min.js"></script>
+<script type="text/javascript" src="charts.js"></script>
+<script type="text/javascript" src="data_handler.js"></script>
+<script type="text/javascript">
+
+var data_handler = null;
+
+
+function daysDiff(firstDate, secondDate){
+  var oneDay = 86400000;//24*60*60*1000; // hours*minutes*seconds*milliseconds
+  var diffDays = Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
+  return diffDays;
+}
+
+function dateByAddingDays(date, days){
+  var time = date.getTime() + days * 86400000;
+  return new Date(time);
+}
+
+Date.prototype.simpleFormat = function(){
+  var d = this.getDate();
+  var m = this.getMonth() + 1;
+  var y = this.getFullYear();
+
+  var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  return days[this.getDay()] + " " +d + "/" + m + "/" + y;
+}
+
+function extendArray (destination, origin) {
+    /* you should include a test to check whether other_array really is an array */
+    for(var i = 0; i< origin.length; i++){
+      destination.push(origin[i]);
+    }
+}
+
+
+$(document).ready(function(){
+
+  data_handler = new DataHandler();
+  window.data_handler = data_handler;
+  data_handler.loadData("block.csv", function(){
+
+    d3.select("#loading_overlay").remove();
+    $('#maintain_scale').attr('checked', true);
+
+    $(function() {
+      $( "#datepicker" ).datepicker({
+        minDate: data_handler.min_date,
+        maxDate: data_handler.max_date,
+        onSelect: function(dateText){ selectedDate(new Date(dateText)); }
+      });
+    });
+
+
+
+    var diff = daysDiff(data_handler.min_date, data_handler.max_date);
+    var start_date_offset =  Math.floor(diff/2) + 20;
+
+
+    selectedDate(dateByAddingDays(data_handler.min_date, start_date_offset));
+
+  });
+
+  function selectedDate(date){
+    $( "#datepicker" ).val(date.simpleFormat());
+    //d3.select("#date_paragraph").text(date.simpleFormat()).style("color", "#41337a").style("font-weight", "bold");
+    data_handler.drawDailyGraphs(date);
+  }
+
+});
+
+
+</script>
+</head>
+<body>
+  <div id="loading_overlay"><p>LOADING DATA. PLEASE WAIT<p><img  width="50" heigth="50" src="loader.gif"/></div>
+
+<div id="slider_container">
+  <div class="title_div"><p>C2G DATA VISUALIZATION</p></div>
+  <div class="left_div"><p>Date: <input type="text" id="datepicker"></p></div>
+  <div class="right_div"><!--<p id="date_paragraph">05/10/1990</p>--></div>
+</div>
+<div class="div_container">
+  <div id="map_container" class="div_item"></div>
+  <div class="div_item" id="graphs_container">
+    <div class="div_item" id="no_rentals"></div>
+    <div class="div_item" id="avg_time"></div>
+    <div class="div_item" id="time_groups"></div>
+  </div>
+</div>
+
+<div class="legend">
+  <div cass="legend_item">
+    <input id="maintain_scale" type="checkbox" checked="checked" style="float:left;"/>
+    <p width="1000" style="margin-left:20px;">Maintain scale of graphs in detail view.
+      <br/>If checked on the Y axis the maximum will be the maximum of the day
+      <br/>If unchecked on the Y axis the maximum will be the maximum of the area
+    </p>
+  </div>
+  <div cass="legend_item">
+    <svg  width="30" height="30"  style="float:left;">
+      <circle cx="15" cy="15" r="15" class="circle"/>
+    </svg>
+    <p width="1000" style="margin-top:-5px; margin-left:20px; display:inline-block;">
+      Start area. Move mouse hover to see routes, if no routes are visible it means that all rentals have ended in the same area. If present means that at least a rental has begun from that area. <br/> The bigger the start area the more rentals have started from there.
+      </p>
+  </div>
+  <div cass="legend_item">
+    <svg  width="30" height="30" style="float:left;" >
+      <line x1="0" y1="15" x2="30" y2="15" stroke="#fe5d26" style="stroke-width:4px"/>
+    </svg>
+    <p width="1000" style="margin-top:5px;margin-left:20px; display:inline-block;">
+      Route: indicates that at least a car has moved from start area to destination area</p>
+  </div>
+  <div cass="legend_item">
+    <svg  width="100" height="120" class="chart" style="float:left;">
+      <rect  x="0" width="100" y="80" height="40" class="two"></rect>
+      <text x="12" y="104">Distance > 5Km</text>
+
+      <rect  x="0" width="100" y="40" height="40" class="one"></rect>
+      <text x="12" y="64">Distance < 5Km</text>
+      <rect  x="0" width="100" y="0" height="40" class="zero"></rect>
+      <text x="12" y="24">Distance < 2Km</text>
+
+    </svg>
+    <p width="1000" style="margin-top:50px;margin-left:20px; display:inline-block;">
+      Each color of the stacked bar chart represents the number of cars that have travelled a different length in Kilometers
+    </p>
+  </div>
+</div>
+
+
+<p class="signature">Paolo Coronati 1313256</p>
+
+</body>
+</html>

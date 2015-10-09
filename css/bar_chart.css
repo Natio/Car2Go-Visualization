@@ -1,0 +1,109 @@
+
+
+#no_rentals .bar {
+  fill: #58355E;
+}
+
+#no_rentals .bar:hover {
+  fill: #bcd4de;
+}
+
+
+#avg_time .bar {
+  fill: #0C4177;
+}
+
+#avg_time .bar:hover {
+  fill: #bcd4de;
+}
+
+.zero{
+  fill: #0c7512;
+}
+
+.one {
+  /*fill: steelblue;*/
+  fill: #ccac00;
+}
+
+.two{
+  fill: #830000;
+}
+
+.bar:hover {
+  fill: #bcd4de;
+}
+
+.bar:hover text{
+  fill: black;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+
+
+.chart text {
+  fill: white;
+  font: 10px sans-serif;
+  font-weight: 400;
+}
+
+
+.chart .axis text{
+  fill: black;
+}
+
+.chart .axis text.axis_label{
+  font: 10px sans-serif;
+  font-weight: bold;
+}
+
+
+
+/*** TOOLTIP ***/
+
+.d3-tip {
+  line-height: 1;
+  font-weight: 400;
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  border-radius: 2px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 5px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
